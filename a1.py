@@ -40,14 +40,14 @@ def perplexity_calculation(tokens,unigramFreq, bigramFreq, vocabSize,n = 2 ):
     for i in range(1,N):
         if n == 2:
             bigram = (tokens[i-1], tokens[i])
-            bigram_prob = laplaceSmoothingBigram(bigram, bigramFreq, unigramFreq, vocabSize)
+            probability = laplaceSmoothingBigram(bigram, bigramFreq, unigramFreq, vocabSize)
         elif n == 1:
             unigram = tokens[i]
-            unigram_prob = laplaceSmoothingUnigram(unigram, unigramFreq, totalWords, vocabSize)
+            probability = laplaceSmoothingUnigram(unigram, unigramFreq, totalWords, vocabSize)
         else: 
             raise ValueError("Must be a bigram or unigram")
         
-        log_odds += math.log(bigram_prob)
+        log_odds += math.log(probability)
     
     perplxity = math.exp(-log_odds/N)
     return perplxity
