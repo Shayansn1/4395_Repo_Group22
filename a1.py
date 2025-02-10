@@ -33,6 +33,26 @@ def laplaceSmoothingBigram(bigram, bigramFreq, unigramFreq, vocabSize):
 def addKSmoothingUnigram(word, unigramFreq, totalWords, vocabSize, k=0.5):
     return (unigramFreq.get(word, 0) + k) / (totalWords + k * vocabSize)
 
+def perplexity_calculation(tokens,unigramFreq, bigramFreq, vocabSize,n = 2 ):
+    log_odds = 0
+    N = len(tokens)
+
+    for i in range(1,N):
+        if n == 2:
+            bigram = (tokens[i-1], tokens[i])
+            bigram_prob = laplaceSmoothingBigram(bigram, bigramFreq, unigramFreq, vocabSize)
+        elif n == 1:
+            unigram = tokens[i]
+            unigram_prob = laplaceSmoothingUnigram(unigram, unigramFreq, totalWords, vocabSize)
+        else: 
+            raise ValueError("Must be a bigram or unigram")
+        
+        log_odds += math.log(bigram_prob)
+    
+    perplxity = math.exp(-log_odds/N)
+    return perplxity
+
+
 # Uncomment the lines below to read from train.txt
 # preprocessed_lines = []
 # with open('train.txt', 'r') as file:
@@ -71,8 +91,19 @@ for bigram in bigramFreq.keys():
     probLaplaceBigram = laplaceSmoothingBigram(bigram, bigramFreq, unigramFreq, vocabSize)
     print(f"P({bigram[1]} | {bigram[0]}) = {probLaplaceBigram:.4f}")
 
+
+# Perplexity Calculation
+perplexity_bigram = perplexity_calculation(processedTokens, unigramFreq, bigramFreq, vocabSize, n=2)
+print("\nPerplexity for Bigram Model: ", perplexity_bigram)
+
+perplexity_unigram = perplexity_calculation(processedTokens, unigramFreq, bigramFreq, vocabSize, n=1)
+print("\nPerplexity for Unigram Model: ", perplexity_unigram)
+
+
 # Add-k smoothed unigram probabilities (k=0.5 example)
 print("\nAdd-0.5 Smoothed Unigram Probabilities:")
 for word in unigramFreq.keys():
     probAddKUnigram = addKSmoothingUnigram(word, unigramFreq, totalWords, vocabSize, k=0.5)
     print(f"P({word}) = {probAddKUnigram:.4f}")
+
+
